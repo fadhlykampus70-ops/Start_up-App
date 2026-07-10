@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplikasi Retribusi Sampah — DLH Kota Sawahlunto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --c-primary:#0B4F3C;
+    --c-primary-dark:#073024;
+    --c-primary-light:#E8F3EF;
+    --c-primary-soft:#DCEAE4;
+    --c-accent:#D97706;
+    --c-accent-dark:#B45F04;
+    --c-success:#15803D;
+    --c-success-bg:#E7F5EC;
+    --c-danger:#B91C1C;
+    --c-danger-bg:#FBEAEA;
+    --c-neutral-outline:#DFE7E3;
+    --c-n-50:#F6F8F7;
+    --c-n-100:#EEF2F0;
+    --c-n-200:#E2E8E5;
+    --c-n-400:#8FA098;
+    --c-n-600:#526158;
+    --c-n-900:#182420;
+    --font-display:'Plus Jakarta Sans', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+    --radius:10px;
+    --shadow-sm: 0 1px 2px rgba(11,79,60,0.06);
+    --shadow-md: 0 4px 16px rgba(7,48,36,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:var(--c-n-50);
+    color:var(--c-n-900);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,.font-display{font-family:var(--font-display);}
+  button{font-family:inherit;}
+  a{text-decoration:none;color:inherit;}
+  ::selection{background:var(--c-primary-soft);}
+  :focus-visible{outline:2px solid var(--c-accent); outline-offset:2px;}
+
+  /* ---------- LOGIN ---------- */
+  #loginScreen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+    background:
+      linear-gradient(180deg, var(--c-primary-dark) 0%, var(--c-primary) 62%);
+  }
+  #loginScreen .contours{
+    position:absolute; inset:0; opacity:0.16; pointer-events:none;
+  }
+  .login-card{
+    position:relative;
+    z-index:2;
+    width:min(940px, 92vw);
+    background:#fff;
+    border-radius:16px;
+    box-shadow:0 30px 70px rgba(3,26,19,0.45);
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    overflow:hidden;
+  }
+  .login-brand{
+    background:var(--c-primary-dark);
+    color:#fff;
+    padding:44px 40px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    position:relative;
+  }
+  .login-brand .crest{
+    width:56px;height:56px;border-radius:12px;
+    background:var(--c-accent);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display);font-weight:800;font-size:20px;color:#fff;
+    margin-bottom:22px;
+  }
+  .login-brand h1{font-size:22px;line-height:1.3;margin:0 0 6px;font-weight:800;}
+  .login-brand p{margin:0;font-size:13.5px;color:#BFE0D3;line-height:1.6;}
+  .login-brand .tag{
+    font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:#8FCBAF; font-weight:600; margin-bottom:10px;
+  }
+  .login-brand .foot{font-size:12px;color:#7EB79E;}
+  .login-form{padding:44px 40px;}
+  .login-form h2{font-size:19px;margin:0 0 4px;font-weight:700;}
+  .login-form .sub{font-size:13px;color:var(--c-n-600);margin:0 0 26px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--c-n-600);margin-bottom:6px;}
+  .field input, .field select{
+    width:100%;padding:11px 13px;border:1px solid var(--c-neutral-outline);
+    border-radius:8px;font-size:14px;font-family:inherit;background:var(--c-n-50);
+    transition:border-color .15s, background .15s;
+  }
+  .field input:focus, .field select:focus{border-color:var(--c-primary); background:#fff;}
+  .role-toggle{display:flex;gap:8px;margin-bottom:22px;}
+  .role-opt{
+    flex:1;border:1px solid var(--c-neutral-outline);border-radius:8px;padding:10px;
+    text-align:center;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--c-n-600);
+    background:#fff;
+  }
+  .role-opt.active{border-color:var(--c-primary);background:var(--c-primary-light);color:var(--c-primary-dark);}
+  .btn-masuk{
+    width:100%;padding:12px;border:none;border-radius:8px;
+    background:var(--c-primary);color:#fff;font-weight:700;font-size:14px;
+    letter-spacing:.02em;cursor:pointer;transition:background .15s;
+  }
+  .btn-masuk:hover{background:var(--c-primary-dark);}
+  .login-note{margin-top:16px;font-size:11.5px;color:var(--c-n-400);text-align:center;}
+
+  /* ---------- APP SHELL ---------- */
+  #app{display:none;min-height:100vh;}
+  .shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+  .sidebar{
+    background:var(--c-primary-dark);
+    color:#DCEAE4;
+    padding:20px 14px;
+    display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .sb-brand{display:flex;align-items:center;gap:10px;padding:6px 8px 20px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:14px;}
+  .sb-brand .mark{width:36px;height:36px;border-radius:9px;background:var(--c-accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;color:#fff;font-size:14px;flex:none;}
+  .sb-brand .txt div:first-child{font-family:var(--font-display);font-weight:700;font-size:13px;color:#fff;line-height:1.3;}
+  .sb-brand .txt div:last-child{font-size:10.5px;color:#8FCBAF;}
+  .nav-group{margin-bottom:4px;}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+    font-size:13.2px;font-weight:500;cursor:pointer;color:#CFE6DA;
+    transition:background .12s,color .12s;user-select:none;
+  }
+  .nav-item .ic{width:18px;text-align:center;flex:none;font-size:14px;}
+  .nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .nav-item.active{background:var(--c-accent);color:#fff;}
+  .nav-item.parent::after{content:'▾';margin-left:auto;font-size:10px;opacity:.7;transition:transform .15s;}
+  .nav-item.parent.open::after{transform:rotate(180deg);}
+  .submenu{max-height:0;overflow:hidden;transition:max-height .2s ease;}
+  .submenu.open{max-height:260px;}
+  .submenu .nav-item{padding-left:34px;font-size:12.6px;}
+  .sb-foot{margin-top:auto;padding-top:16px;font-size:10.5px;color:#5F8C77;border-top:1px solid rgba(255,255,255,0.08);}
+
+  .main{display:flex;flex-direction:column;min-width:0;}
+  .topbar{
+    height:62px;background:#fff;border-bottom:1px solid var(--c-neutral-outline);
+    display:flex;align-items:center;justify-content:space-between;padding:0 24px;
+    position:sticky;top:0;z-index:5;
+  }
+  .topbar .pagetitle{font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--c-n-900);}
+  .topbar .userbox{display:flex;align-items:center;gap:12px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--c-primary-light);color:var(--c-primary-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:var(--font-display);}
+  .rolebadge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.03em;}
+  .rolebadge.SUPERADMIN{background:var(--c-primary-light);color:var(--c-primary-dark);}
+  .rolebadge.PETUGAS{background:#FFF1DF;color:var(--c-accent-dark);}
+  .btn-logout{border:1px solid var(--c-neutral-outline);background:#fff;padding:7px 13px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--c-n-600);cursor:pointer;}
+  .btn-logout:hover{border-color:var(--c-danger);color:var(--c-danger);}
+
+  .content{padding:24px;flex:1;}
+  .page{display:none;}
+  .page.active{display:block;animation:fadein .18s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .breadcrumb{font-size:12px;color:var(--c-n-400);margin-bottom:4px;}
+  .page-head{margin-bottom:20px;}
+  .page-head h2{font-size:20px;margin:0 0 3px;font-weight:800;}
+  .page-head p{margin:0;font-size:13px;color:var(--c-n-600);}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:#fff;border:1px solid var(--c-neutral-outline);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .stat-card .lbl{font-size:11.5px;color:var(--c-n-600);font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+  .stat-card .val{font-family:var(--font-mono);font-size:21px;font-weight:600;color:var(--c-n-900);}
+  .stat-card.accent-primary .val{color:var(--c-primary);}
+  .stat-card.accent-success .val{color:var(--c-success);}
+  .stat-card.accent-danger .val{color:var(--c-danger);}
+  .stat-card.accent-amber .val{color:var(--c-accent-dark);}
+
+  .panel{background:#fff;border:1px solid var(--c-neutral-outline);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+  .panel-head{padding:16px 18px;border-bottom:1px solid var(--c-n-100);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .panel-head h3{font-size:14.5px;margin:0;font-weight:700;}
+  .panel-body{padding:18px;}
+
+  .grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:20px;align-items:stretch;}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  .toolbar input[type=text], .toolbar input[type=date], .toolbar select{
+    padding:9px 12px;border:1px solid var(--c-neutral-outline);border-radius:7px;font-size:13px;background:var(--c-n-50);font-family:inherit;
+  }
+  .toolbar input[type=text]{min-width:220px;}
+  .toolbar .spacer{flex:1;}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:7px;font-size:13px;font-weight:600;
+    border:1px solid transparent;cursor:pointer;transition:filter .1s;
+  }
+  .btn:hover{filter:brightness(0.94);}
+  .btn-primary{background:var(--c-primary);color:#fff;}
+  .btn-accent{background:var(--c-accent);color:#fff;}
+  .btn-outline{background:#fff;border-color:var(--c-neutral-outline);color:var(--c-n-600);}
+  .btn-outline:hover{border-color:var(--c-primary);color:var(--c-primary-dark);}
+  .btn-sm{padding:6px 10px;font-size:12px;border-radius:6px;}
+  .btn-icon{padding:6px 8px;}
+  .btn-danger-ghost{background:#fff;border-color:var(--c-neutral-outline);color:var(--c-danger);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--c-n-600);
+    padding:10px 12px;border-bottom:2px solid var(--c-n-100);cursor:pointer;white-space:nowrap;user-select:none;
+    background:var(--c-n-50);
+  }
+  thead th .arrow{opacity:0.4;font-size:10px;margin-left:3px;}
+  thead th.sorted .arrow{opacity:1;color:var(--c-primary);}
+  tbody td{padding:10px 12px;border-bottom:1px solid var(--c-n-100);vertical-align:middle;}
+  tbody tr:hover{background:var(--c-n-50);}
+  .mono{font-family:var(--font-mono);}
+  .num{font-family:var(--font-mono);text-align:right;}
+  .actions-cell{display:flex;gap:5px;flex-wrap:wrap;}
+
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.02em;}
+  .badge.lunas{background:var(--c-success-bg);color:var(--c-success);}
+  .badge.belum{background:#FFF1DF;color:var(--c-accent-dark);}
+  .badge.hapus{background:var(--c-n-100);color:var(--c-n-600);}
+  .badge.role{background:var(--c-primary-light);color:var(--c-primary-dark);}
+
+  .table-summary{padding:10px 12px;font-size:12px;color:var(--c-n-600);border-top:1px solid var(--c-n-100);display:flex;justify-content:space-between;}
+
+  .card-menu{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .menu-card{
+    background:#fff;border:1px solid var(--c-neutral-outline);border-radius:var(--radius);padding:22px 18px;
+    cursor:pointer;transition:border-color .15s, transform .15s, box-shadow .15s;
+  }
+  .menu-card:hover{border-color:var(--c-primary);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .menu-card .ic{width:40px;height:40px;border-radius:9px;background:var(--c-primary-light);color:var(--c-primary-dark);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:14px;}
+  .menu-card h4{margin:0 0 4px;font-size:14.5px;font-weight:700;}
+  .menu-card p{margin:0;font-size:12.3px;color:var(--c-n-600);line-height:1.5;}
+
+  .toast{
+    position:fixed;bottom:22px;right:22px;background:var(--c-n-900);color:#fff;padding:12px 18px;border-radius:8px;
+    font-size:13px;box-shadow:var(--shadow-md);z-index:80;display:flex;align-items:center;gap:10px;
+    transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s ease;
+  }
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast .dot{width:8px;height:8px;border-radius:50%;background:var(--c-accent);flex:none;}
+
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(7,20,15,0.5);display:none;align-items:center;justify-content:center;z-index:90;
+  }
+  .modal-backdrop.show{display:flex;}
+  .modal-box{background:#fff;border-radius:12px;width:min(420px,90vw);padding:26px;box-shadow:var(--shadow-md);text-align:center;}
+  .modal-box .spin{
+    width:34px;height:34px;border-radius:50%;border:3px solid var(--c-primary-light);border-top-color:var(--c-primary);
+    margin:0 auto 16px;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .modal-box h4{margin:0 0 6px;font-size:15px;}
+  .modal-box p{margin:0;font-size:12.5px;color:var(--c-n-600);}
+
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--c-primary);cursor:pointer;margin-bottom:14px;}
+  .back-link:hover{text-decoration:underline;}
+
+  @media (max-width: 980px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{position:fixed;left:-260px;width:250px;z-index:60;transition:left .2s;box-shadow:var(--shadow-md);}
+    .sidebar.open{left:0;}
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+    .card-menu{grid-template-columns:repeat(2,1fr);}
+    .login-card{grid-template-columns:1fr;}
+    .login-brand{display:none;}
+    .menu-toggle{display:inline-flex !important;}
+  }
+  .menu-toggle{display:none;background:none;border:none;font-size:18px;cursor:pointer;color:var(--c-n-900);margin-right:10px;}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <svg class="contours" viewBox="0 0 900 600" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="#ffffff" stroke-width="1.1">
+      <path d="M-20 500 C 150 430, 250 470, 380 400 C 520 330, 600 380, 760 300 C 850 260, 900 280, 940 250"/>
+      <path d="M-20 540 C 160 480, 260 510, 400 450 C 540 390, 620 430, 780 350 C 860 315, 910 330, 950 300"/>
+      <path d="M-20 580 C 170 530, 280 555, 420 500 C 560 445, 640 480, 800 405 C 870 370, 920 385, 960 355"/>
+      <path d="M-20 460 C 140 390, 240 425, 360 350 C 500 275, 580 320, 740 250 C 830 210, 880 230, 930 205"/>
+      <path d="M-20 420 C 130 355, 220 385, 340 305 C 480 220, 560 265, 720 200 C 810 160, 860 180, 920 155"/>
+    </g>
+  </svg>
+  <div class="login-card">
+    <div class="login-brand">
+      <div>
+        <div class="crest">DLH</div>
+        <div class="tag">Pemerintah Kota Sawahlunto</div>
+        <h1>Aplikasi Retribusi Sampah</h1>
+        <p>Sistem informasi pengelolaan retribusi pelayanan persampahan Dinas Lingkungan Hidup Kota Sawahlunto, Sumatera Barat.</p>
+      </div>
+      <div class="foot">© Dinas Lingkungan Hidup — Kota Sawahlunto · Demo Presentasi</div>
+    </div>
+    <div class="login-form">
+      <h2>Masuk ke akun Anda</h2>
+      <p class="sub">Silakan pilih jenis akses dan masuk menggunakan akun dinas.</p>
+
+      <div class="field">
+        <label>Jenis Akses</label>
+        <div class="role-toggle">
+          <div class="role-opt active" data-role="SUPERADMIN" onclick="selectRole(this)">SUPERADMIN</div>
+          <div class="role-opt" data-role="PETUGAS" onclick="selectRole(this)">PETUGAS</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="mis. admin.dlh" value="admin.dlh">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••••" value="••••••••">
+      </div>
+      <button class="btn-masuk" onclick="doLogin()">MASUK</button>
+      <div class="login-note">Demo showcase — validasi login tidak diaktifkan.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-brand">
+        <div class="mark">DLH</div>
+        <div class="txt">
+          <div>DLH Sawahlunto</div>
+          <div>Retribusi Sampah</div>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-item" data-page="dashboard" onclick="goPage('dashboard', this)">
+          <span class="ic">&#9635;</span> Dashboard Tagihan
+        </div>
+
+        <div class="nav-item parent" onclick="toggleSub('master', this)">
+          <span class="ic">&#9776;</span> Menu Master
+        </div>
+        <div class="submenu" id="sub-master">
+          <div class="nav-item" data-page="m-jenis" onclick="goPage('m-jenis', this)">Data Jenis Tagihan</div>
+          <div class="nav-item" data-page="m-golongan" onclick="goPage('m-golongan', this)">Data Golongan Penerimaan</div>
+          <div class="nav-item" data-page="m-wajib" onclick="goPage('m-wajib', this)">Data Wajib Retribusi</div>
+          <div class="nav-item" data-page="m-user" onclick="goPage('m-user', this)">Data User</div>
+        </div>
+
+        <div class="nav-item" data-page="tagihan" onclick="goPage('tagihan', this)">
+          <span class="ic">&#8801;</span> Data Tagihan
+        </div>
+
+        <div class="nav-item parent" onclick="toggleSub('laporan', this)">
+          <span class="ic">&#128196;</span> Laporan
+        </div>
+        <div class="submenu" id="sub-laporan">
+          <div class="nav-item" data-page="lap-bulanan" onclick="goPage('lap-bulanan', this)">Laporan Tagihan Bulanan</div>
+          <div class="nav-item" data-page="lap-harian" onclick="goPage('lap-harian', this)">Rekap Retribusi Harian</div>
+        </div>
+      </div>
+
+      <div class="sb-foot">Versi Demo 1.0 · Data ditampilkan bersifat contoh (dummy) untuk keperluan presentasi proposal.</div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;">
+          <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+          <div class="pagetitle" id="pageTitle">Dashboard Tagihan</div>
+        </div>
+        <div class="userbox">
+          <span class="rolebadge" id="topRoleBadge">SUPERADMIN</span>
+          <div class="avatar" id="topAvatar">SA</div>
+          <div style="line-height:1.25;">
+            <div style="font-size:12.5px;font-weight:700;" id="topUserName">Admin DLH</div>
+            <div style="font-size:11px;color:var(--c-n-600);">Sedang aktif</div>
+          </div>
+          <button class="btn-logout" onclick="doLogout()">Keluar</button>
+        </div>
+      </div>
+
+      <div class="content">
+
+        <!-- ============ DASHBOARD ============ -->
+        <div class="page active" id="page-dashboard">
+          <div class="page-head">
+            <h2>Dashboard Tagihan</h2>
+            <p>Ringkasan retribusi pelayanan persampahan periode berjalan.</p>
+          </div>
+
+          <div class="toolbar">
+            <label style="font-size:12px;color:var(--c-n-600);font-weight:600;">Dari</label>
+            <input type="date" value="2025-01-01">
+            <label style="font-size:12px;color:var(--c-n-600);font-weight:600;">Sampai</label>
+            <input type="date" value="2025-06-30">
+            <select>
+              <option>Semua Status</option>
+              <option>Sudah Bayar</option>
+              <option>Belum Bayar</option>
+            </select>
+            <div class="spacer"></div>
+            <button class="btn btn-outline btn-sm">Terapkan Filter</button>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-card accent-primary">
+              <div class="lbl">Total Tagihan</div>
+              <div class="val">Rp 84.250.000</div>
+            </div>
+            <div class="stat-card accent-success">
+              <div class="lbl">Sudah Dibayar</div>
+              <div class="val">Rp 61.400.000</div>
+            </div>
+            <div class="stat-card accent-danger">
+              <div class="lbl">Belum Dibayar</div>
+              <div class="val">Rp 22.850.000</div>
+            </div>
+            <div class="stat-card accent-amber">
+              <div class="lbl">Total Denda</div>
+              <div class="val">Rp 2.140.000</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head"><h3>Ringkasan Bulanan (6 Bulan Terakhir)</h3></div>
+              <div class="panel-body"><canvas id="barMonthly" height="230"></canvas></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Tagihan per Golongan Retribusi</h3></div>
+              <div class="panel-body"><canvas id="pieGolongan" height="230"></canvas></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Transaksi Terbaru</h3></div>
+            <div class="panel-body" style="padding-top:0;overflow-x:auto;">
+              <div id="tbl-dashboard-recent"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ MENU MASTER LANDING (not used directly, sidebar links direct) ============ -->
+
+        <!-- ============ JENIS TAGIHAN ============ -->
+        <div class="page" id="page-m-jenis">
+          <div class="page-head">
+            <h2>Data Jenis Tagihan</h2>
+            <p>Menu Master &rsaquo; Jenis Tagihan</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Daftar Jenis Tagihan</h3>
+              <button class="btn btn-accent btn-sm" onclick="showToast('Form tambah Jenis Tagihan (demo)')">+ Tambah Data</button>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar"><input type="text" placeholder="Cari kode / nama..." data-search="jenis"><div class="spacer"></div></div>
+              <div style="overflow-x:auto;" id="tbl-jenis"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ GOLONGAN ============ -->
+        <div class="page" id="page-m-golongan">
+          <div class="page-head">
+            <h2>Data Golongan Penerimaan</h2>
+            <p>Menu Master &rsaquo; Golongan Penerimaan</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Daftar Golongan Penerimaan</h3>
+              <button class="btn btn-accent btn-sm" onclick="showToast('Form tambah Golongan (demo)')">+ Tambah Data</button>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar"><input type="text" placeholder="Cari kode / nama..." data-search="golongan"><div class="spacer"></div></div>
+              <div style="overflow-x:auto;" id="tbl-golongan"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ WAJIB RETRIBUSI ============ -->
+        <div class="page" id="page-m-wajib">
+          <div class="page-head">
+            <h2>Data Wajib Retribusi</h2>
+            <p>Menu Master &rsaquo; Wajib Retribusi</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Daftar Wajib Retribusi</h3>
+              <button class="btn btn-accent btn-sm" onclick="showToast('Form tambah Wajib Retribusi (demo)')">+ Tambah Data</button>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar">
+                <input type="text" placeholder="Cari nama / NIK / alamat..." data-search="wajib">
+                <select data-filter-wajib>
+                  <option value="">Semua Golongan Usaha</option>
+                  <option>Hotel</option><option>Restoran</option><option>Pertokoan</option><option>Rumah Makan</option><option>Perkantoran</option>
+                </select>
+                <div class="spacer"></div>
+                <button class="btn btn-outline btn-sm" onclick="showToast('Mengekspor ke Excel...')">Export Excel</button>
+                <button class="btn btn-outline btn-sm" onclick="showToast('Mengekspor ke PDF...')">Export PDF</button>
+              </div>
+              <div style="overflow-x:auto;" id="tbl-wajib"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ DATA USER ============ -->
+        <div class="page" id="page-m-user">
+          <div class="page-head">
+            <h2>Data User</h2>
+            <p>Menu Master &rsaquo; User</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Daftar User Sistem</h3>
+              <button class="btn btn-accent btn-sm" onclick="showToast('Form tambah User (demo)')">+ Tambah Data</button>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar"><input type="text" placeholder="Cari nama / email..." data-search="user"><div class="spacer"></div></div>
+              <div style="overflow-x:auto;" id="tbl-user"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ DATA TAGIHAN ============ -->
+        <div class="page" id="page-tagihan">
+          <div class="page-head">
+            <h2>Data Tagihan</h2>
+            <p>Transaksi tagihan retribusi per periode.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Daftar Tagihan</h3>
+              <button class="btn btn-primary btn-sm" onclick="generateTagihan()">+ Buat Tagihan Bulanan</button>
+            </div>
+            <div class="panel-body">
+              <div class="toolbar">
+                <input type="text" placeholder="Cari wajib retribusi..." data-search="tagihan">
+                <select id="filterBulan"><option value="">Semua Bulan</option><option>Januari</option><option>Februari</option><option>Maret</option><option>April</option><option>Mei</option><option>Juni</option></select>
+                <select id="filterTahun"><option value="">Semua Tahun</option><option>2025</option><option>2024</option></select>
+                <div class="spacer"></div>
+              </div>
+              <div style="overflow-x:auto;" id="tbl-tagihan"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ LAPORAN BULANAN ============ -->
+        <div class="page" id="page-lap-bulanan">
+          <div class="page-head">
+            <h2>Laporan Tagihan Bulanan</h2>
+            <p>Rekapitulasi tagihan berdasarkan periode, jenis, dan golongan.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Filter Laporan</h3></div>
+            <div class="panel-body" style="padding-bottom:4px;">
+              <div class="toolbar">
+                <input type="date" value="2025-06-01">
+                <input type="date" value="2025-06-30">
+                <select><option>Semua Jenis Tagihan</option><option>Tagihan Harian</option><option>Tagihan Bulanan</option></select>
+                <select><option>Semua Golongan</option><option>Hotel</option><option>Restoran</option><option>Pertokoan</option><option>Rumah Makan</option><option>Perkantoran</option></select>
+                <button class="btn btn-outline btn-sm">Terapkan</button>
+                <div class="spacer"></div>
+                <button class="btn btn-outline btn-sm" onclick="showToast('Mengekspor ke Excel...')">Export Excel</button>
+                <button class="btn btn-outline btn-sm" onclick="showToast('Mengekspor ke PDF...')">Export PDF</button>
+                <button class="btn btn-accent btn-sm" onclick="showToast('Menyiapkan cetak...')">Cetak</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:16px;">
+            <div class="panel-head"><h3>Rincian Tagihan Bulanan — Juni 2025</h3></div>
+            <div class="panel-body" style="overflow-x:auto;">
+              <div id="tbl-lap-bulanan"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ LAPORAN HARIAN ============ -->
+        <div class="page" id="page-lap-harian">
+          <div class="page-head">
+            <h2>Laporan Rekap Retribusi Harian</h2>
+            <p>Rekapitulasi setoran retribusi harian per petugas pemungut.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Filter Laporan</h3></div>
+            <div class="panel-body" style="padding-bottom:4px;">
+              <div class="toolbar">
+                <input type="date" value="2025-06-14">
+                <select><option>Semua Petugas Pemungut</option><option>Rudi Hartono</option><option>Nur Azizah</option><option>Dedi Irawan</option></select>
+                <button class="btn btn-outline btn-sm">Terapkan</button>
+                <div class="spacer"></div>
+                <button class="btn btn-outline btn-sm" onclick="showToast('Mengekspor ke Excel...')">Export Excel</button>
+                <button class="btn btn-outline btn-sm" onclick="showToast('Mengekspor ke PDF...')">Export PDF</button>
+                <button class="btn btn-accent btn-sm" onclick="showToast('Menyiapkan cetak...')">Cetak</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel" style="margin-top:16px;">
+            <div class="panel-head"><h3>Rekap Retribusi Harian — 14 Juni 2025</h3></div>
+            <div class="panel-body" style="overflow-x:auto;">
+              <div id="tbl-lap-harian"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastMsg">Berhasil</span></div>
+
+<div class="modal-backdrop" id="genModal">
+  <div class="modal-box">
+    <div class="spin"></div>
+    <h4>Membuat tagihan bulanan…</h4>
+    <p>Sistem sedang menghitung tagihan untuk seluruh wajib retribusi aktif periode berjalan.</p>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA DUMMY
+   ============================================================ */
+const jenisTagihanData = [
+  {kode:'0001', nama:'Tagihan Harian'},
+  {kode:'0002', nama:'Tagihan Bulanan'},
+];
+
+const golonganData = [
+  {kode:'0001', nama:'Retribusi Persampahan - Hotel'},
+  {kode:'0002', nama:'Retribusi Persampahan - Restoran'},
+  {kode:'0003', nama:'Retribusi Persampahan - Pertokoan'},
+  {kode:'0004', nama:'Retribusi Persampahan - Rumah Makan'},
+  {kode:'0005', nama:'Retribusi Persampahan - Perkantoran'},
+];
+
+const wajibRetribusiData = [
+  {kode:'WR-001', nama:'Yulia Ramadhani', nik:'1305045601880002', alamat:'Jl. Prof. M. Yamin, Kel. Pasar, Kec. Lembah Segar', hp:'0812-6611-2201', golongan:'Hotel', tarifBulan:750000, tarifTahun:8250000},
+  {kode:'WR-002', nama:'Budi Santoso', nik:'1305041203790001', alamat:'Jl. Sudirman, Kel. Kubang Sirakuk, Kec. Barangin', hp:'0813-7724-5590', golongan:'Restoran', tarifBulan:450000, tarifTahun:4950000},
+  {kode:'WR-003', nama:'Ahmad Fauzi', nik:'1305042107850003', alamat:'Jl. A. Yani, Kel. Air Dingin, Kec. Lembah Segar', hp:'0821-8845-0012', golongan:'Pertokoan', tarifBulan:250000, tarifTahun:2750000},
+  {kode:'WR-004', nama:'Siti Aminah', nik:'1305046509910004', alamat:'Jl. Ilyas Yakub, Kel. Silungkang Duo, Kec. Silungkang', hp:'0852-6630-9981', golongan:'Rumah Makan', tarifBulan:300000, tarifTahun:3300000},
+  {kode:'WR-005', nama:'Rina Kartika', nik:'1305043012860005', alamat:'Jl. Muaro Kalaban, Kel. Talawi Hilir, Kec. Talawi', hp:'0822-1345-6670', golongan:'Pertokoan', tarifBulan:225000, tarifTahun:2475000},
+  {kode:'WR-006', nama:'Dedi Irawan', nik:'1305041809820006', alamat:'Jl. Diponegoro, Kel. Pasar, Kec. Lembah Segar', hp:'0813-9902-4471', golongan:'Perkantoran', tarifBulan:400000, tarifTahun:4400000},
+  {kode:'WR-007', nama:'Fitriani', nik:'1305042311930007', alamat:'Jl. Lubuk Tarok, Kel. Kubang Sirakuk Selatan, Kec. Barangin', hp:'0851-7723-1180', golongan:'Restoran', tarifBulan:500000, tarifTahun:5500000},
+  {kode:'WR-008', nama:'Hendra Gunawan', nik:'1305040502870008', alamat:'Jl. Sawahan, Kel. Saringan, Kec. Talawi', hp:'0812-3390-7742', golongan:'Hotel', tarifBulan:650000, tarifTahun:7150000},
+  {kode:'WR-009', nama:'Nur Azizah', nik:'1305044408950009', alamat:'Jl. Silungkang, Kel. Muaro Kalaban, Kec. Silungkang', hp:'0822-5561-8834', golongan:'Rumah Makan', tarifBulan:275000, tarifTahun:3025000},
+  {kode:'WR-010', nama:'Rudi Hartono', nik:'1305041607840010', alamat:'Jl. Imam Bonjol, Kel. Air Dingin, Kec. Lembah Segar', hp:'0813-4471-2205', golongan:'Perkantoran', tarifBulan:350000, tarifTahun:3850000},
+];
+
+const userData = [
+  {id:'USR-001', nama:'Admin DLH', email:'admin.dlh@sawahluntokota.go.id', role:'SUPERADMIN', retribusi:'Seluruh Golongan'},
+  {id:'USR-002', nama:'Rudi Hartono', email:'rudi.hartono@sawahluntokota.go.id', role:'PETUGAS', retribusi:'Kec. Lembah Segar'},
+  {id:'USR-003', nama:'Nur Azizah', email:'nur.azizah@sawahluntokota.go.id', role:'PETUGAS', retribusi:'Kec. Silungkang'},
+  {id:'USR-004', nama:'Dedi Irawan', email:'dedi.irawan@sawahluntokota.go.id', role:'PETUGAS', retribusi:'Kec. Barangin'},
+  {id:'USR-005', nama:'Fitriani', email:'fitriani@sawahluntokota.go.id', role:'PETUGAS', retribusi:'Kec. Talawi'},
+];
+
+function buildTagihan(){
+  const periods = ['Januari 2025','Februari 2025','Maret 2025','April 2025','Mei 2025','Juni 2025'];
+  const out = [];
+  let n = 1;
+  periods.forEach((p, pi) => {
+    wajibRetribusiData.forEach((w, wi) => {
+      const idx = (pi + wi) % 5;
+      let status = 'Sudah Bayar';
+      if (idx === 3) status = 'Belum Bayar';
+      if (idx === 4 && pi < 2) status = 'Dihapus';
+      const denda = status === 'Belum Bayar' && pi < 5 ? Math.round(w.tarifBulan * 0.05) : 0;
+      out.push({
+        id:'TG-' + String(n++).padStart(4,'0'),
+        periode:p,
+        wajib:w.nama,
+        kodeWajib:w.kode,
+        golongan:w.golongan,
+        tagihan:w.tarifBulan,
+        denda:denda,
+        total:w.tarifBulan + denda,
+        status:status
+      });
+    });
+  });
+  return out;
+}
+let tagihanData = buildTagihan();
+
+const petugasPemungut = ['Rudi Hartono','Nur Azizah','Dedi Irawan','Fitriani'];
+function buildLaporanHarian(){
+  return wajibRetribusiData.map((w,i)=>({
+    id:'RH-'+String(i+1).padStart(3,'0'),
+    petugas:petugasPemungut[i % petugasPemungut.length],
+    kodeWajib:w.kode,
+    nama:w.nama,
+    subGolongan:w.golongan,
+    setoran: Math.round(w.tarifBulan/30) * (5 + (i%3)),
+  }));
+}
+const laporanHarianData = buildLaporanHarian();
+
+const rupiah = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
+
+/* ============================================================
+   GENERIC SORTABLE / SEARCHABLE TABLE
+   ============================================================ */
+function renderTable(containerId, columns, rows, opts){
+  opts = opts || {};
+  const container = document.getElementById(containerId);
+  let sortCol = opts.defaultSort || null;
+  let sortDir = 1;
+
+  function draw(){
+    let data = rows.slice();
+    if (opts.searchTerm){
+      const t = opts.searchTerm.toLowerCase();
+      data = data.filter(r => columns.some(c => String(r[c.key]).toLowerCase().includes(t)));
+    }
+    if (opts.extraFilter) data = data.filter(opts.extraFilter);
+    if (sortCol){
+      data.sort((a,b) => {
+        const av = a[sortCol], bv = b[sortCol];
+        if (typeof av === 'number') return (av - bv) * sortDir;
+        return String(av).localeCompare(String(bv), 'id') * sortDir;
+      });
+    }
+
+    let html = '<table><thead><tr>';
+    columns.forEach(c => {
+      const isSorted = sortCol === c.key;
+      html += `<th data-col="${c.key}" class="${isSorted ? 'sorted' : ''}">${c.label}<span class="arrow">${isSorted ? (sortDir===1?'▲':'▼') : '↕'}</span></th>`;
+    });
+    if (opts.actions) html += '<th>Aksi</th>';
+    html += '</tr></thead><tbody>';
+
+    if (data.length === 0){
+      html += `<tr><td colspan="${columns.length + (opts.actions?1:0)}" style="text-align:center;color:var(--c-n-400);padding:24px;">Tidak ada data yang cocok.</td></tr>`;
+    }
+
+    data.forEach(r => {
+      html += '<tr>';
+      columns.forEach(c => {
+        let val = r[c.key];
+        if (c.render) val = c.render(r);
+        html += `<td class="${c.numeric ? 'num' : (c.mono ? 'mono' : '')}">${val}</td>`;
+      });
+      if (opts.actions) html += `<td class="actions-cell">${opts.actions(r)}</td>`;
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+
+    if (opts.summary) html += `<div class="table-summary"><span>Menampilkan ${data.length} dari ${rows.length} data</span><span>${opts.summary(data)}</span></div>`;
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('thead th[data-col]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
+        draw();
+      });
+    });
+  }
+  draw();
+  return { redraw: draw, setSearch:(t)=>{opts.searchTerm=t; draw();}, setFilter:(f)=>{opts.extraFilter=f; draw();} };
+}
+
+/* ============================================================
+   PAGE-SPECIFIC RENDER
+   ============================================================ */
+function actionBtn(label, cls, msg){
+  return `<button class="btn btn-sm ${cls}" onclick="showToast('${msg}')">${label}</button>`;
+}
+
+function renderJenis(){
+  const t = renderTable('tbl-jenis',
+    [{key:'kode',label:'Kode',mono:true},{key:'nama',label:'Nama Jenis Tagihan'}],
+    jenisTagihanData,
+    {actions:(r)=>actionBtn('Ubah','btn-outline','Ubah ' + r.nama) + actionBtn('Hapus','btn-danger-ghost','Hapus ' + r.nama)}
+  );
+  document.querySelector('[data-search="jenis"]').addEventListener('input', e => t.setSearch(e.target.value));
+}
+
+function renderGolongan(){
+  const t = renderTable('tbl-golongan',
+    [{key:'kode',label:'Kode',mono:true},{key:'nama',label:'Nama Golongan'}],
+    golonganData,
+    {actions:(r)=>actionBtn('Ubah','btn-outline','Ubah ' + r.nama) + actionBtn('Hapus','btn-danger-ghost','Hapus ' + r.nama)}
+  );
+  document.querySelector('[data-search="golongan"]').addEventListener('input', e => t.setSearch(e.target.value));
+}
+
+function renderWajib(){
+  const cols = [
+    {key:'kode',label:'Kode',mono:true},
+    {key:'nama',label:'Nama'},
+    {key:'nik',label:'NIK',mono:true},
+    {key:'alamat',label:'Alamat'},
+    {key:'hp',label:'No HP',mono:true},
+    {key:'golongan',label:'Golongan Usaha'},
+    {key:'tarifBulan',label:'Tarif / Bulan',numeric:true,render:r=>rupiah(r.tarifBulan)},
+    {key:'tarifTahun',label:'Tarif / Tahun',numeric:true,render:r=>rupiah(r.tarifTahun)},
+  ];
+  const t = renderTable('tbl-wajib', cols, wajibRetribusiData, {
+    actions:(r)=> actionBtn('Ubah','btn-outline','Mengubah data ' + r.nama)
+      + actionBtn('Hapus','btn-danger-ghost','Menghapus data ' + r.nama)
+      + actionBtn('Cetak','btn-outline','Mencetak kartu ' + r.nama)
+  });
+  document.querySelector('[data-search="wajib"]').addEventListener('input', e => t.setSearch(e.target.value));
+  document.querySelector('[data-filter-wajib]').addEventListener('change', e => {
+    const v = e.target.value;
+    t.setFilter(v ? (r => r.golongan === v) : null);
+  });
+}
+
+function renderUser(){
+  const cols = [
+    {key:'id',label:'User ID',mono:true},
+    {key:'nama',label:'Nama'},
+    {key:'email',label:'Email',mono:true},
+    {key:'role',label:'Role',render:r=>`<span class="badge role">${r.role}</span>`},
+    {key:'retribusi',label:'Retribusi Terkait'},
+  ];
+  const t = renderTable('tbl-user', cols, userData, {
+    actions:(r)=>actionBtn('Ubah','btn-outline','Ubah user ' + r.nama) + actionBtn('Hapus','btn-danger-ghost','Hapus user ' + r.nama)
+  });
+  document.querySelector('[data-search="user"]').addEventListener('input', e => t.setSearch(e.target.value));
+}
+
+function statusBadge(s){
+  if (s === 'Sudah Bayar') return `<span class="badge lunas">Sudah Bayar</span>`;
+  if (s === 'Belum Bayar') return `<span class="badge belum">Belum Bayar</span>`;
+  return `<span class="badge hapus">Dihapus</span>`;
+}
+
+function renderTagihanTable(){
+  const cols = [
+    {key:'id',label:'ID',mono:true},
+    {key:'periode',label:'Periode'},
+    {key:'wajib',label:'Wajib Retribusi'},
+    {key:'tagihan',label:'Tagihan',numeric:true,render:r=>rupiah(r.tagihan)},
+    {key:'denda',label:'Denda',numeric:true,render:r=>rupiah(r.denda)},
+    {key:'total',label:'Total',numeric:true,render:r=>rupiah(r.total)},
+    {key:'status',label:'Status',render:r=>statusBadge(r.status)},
+  ];
+  const t = renderTable('tbl-tagihan', cols, tagihanData, {
+    defaultSort:'id',
+    actions:(r)=>actionBtn('Detail','btn-outline','Menampilkan detail ' + r.id)
+  });
+  document.querySelector('[data-search="tagihan"]').addEventListener('input', e => t.setSearch(e.target.value));
+  const bulanSel = document.getElementById('filterBulan');
+  const tahunSel = document.getElementById('filterTahun');
+  function applyFilter(){
+    const bulan = bulanSel.value, tahun = tahunSel.value;
+    t.setFilter(r => (!bulan || r.periode.startsWith(bulan)) && (!tahun || r.periode.endsWith(tahun)));
+  }
+  bulanSel.addEventListener('change', applyFilter);
+  tahunSel.addEventListener('change', applyFilter);
+  window._refreshTagihanTable = () => renderTable('tbl-tagihan', cols, tagihanData, {defaultSort:'id', actions:(r)=>actionBtn('Detail','btn-outline','Menampilkan detail ' + r.id)});
+}
+
+function renderLaporanBulanan(){
+  const data = tagihanData.filter(r => r.periode === 'Juni 2025' && r.status !== 'Dihapus');
+  const cols = [
+    {key:'id',label:'ID',mono:true},
+    {key:'kodeWajib',label:'Kode',mono:true},
+    {key:'wajib',label:'Nama'},
+    {key:'golongan',label:'Golongan'},
+    {key:'tagihan',label:'Tagihan',numeric:true,render:r=>rupiah(r.tagihan)},
+    {key:'denda',label:'Denda',numeric:true,render:r=>rupiah(r.denda)},
+    {key:'total',label:'Total',numeric:true,render:r=>rupiah(r.total)},
+  ];
+  renderTable('tbl-lap-bulanan', cols, data, {
+    summary:(d)=>{
+      const tot = d.reduce((s,r)=>s+r.total,0);
+      return 'Total: ' + rupiah(tot);
+    }
+  });
+}
+
+function renderLaporanHarian(){
+  const cols = [
+    {key:'id',label:'ID',mono:true},
+    {key:'petugas',label:'Petugas Pemungut'},
+    {key:'kodeWajib',label:'Kode',mono:true},
+    {key:'nama',label:'Nama'},
+    {key:'subGolongan',label:'Sub Golongan'},
+    {key:'setoran',label:'Setoran',numeric:true,render:r=>rupiah(r.setoran)},
+  ];
+  renderTable('tbl-lap-harian', cols, laporanHarianData, {
+    summary:(d)=>{
+      const tot = d.reduce((s,r)=>s+r.setoran,0);
+      return 'Total Setoran: ' + rupiah(tot);
+    }
+  });
+}
+
+function renderDashboardRecent(){
+  const cols = [
+    {key:'id',label:'ID',mono:true},
+    {key:'wajib',label:'Wajib Retribusi'},
+    {key:'periode',label:'Periode'},
+    {key:'total',label:'Total',numeric:true,render:r=>rupiah(r.total)},
+    {key:'status',label:'Status',render:r=>statusBadge(r.status)},
+  ];
+  renderTable('tbl-dashboard-recent', cols, tagihanData.slice(0,8), {});
+}
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+let barChart, pieChart;
+function renderCharts(){
+  const barCtx = document.getElementById('barMonthly');
+  if (barChart) barChart.destroy();
+  barChart = new Chart(barCtx, {
+    type:'bar',
+    data:{
+      labels:['Jan','Feb','Mar','Apr','Mei','Jun'],
+      datasets:[
+        {label:'Sudah Dibayar', data:[9200000,9800000,10450000,10100000,10800000,11050000], backgroundColor:'#0B4F3C', borderRadius:4},
+        {label:'Belum Dibayar', data:[3100000,2800000,4200000,3650000,4400000,4700000], backgroundColor:'#D97706', borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:11}}}},
+      scales:{
+        x:{grid:{display:false}},
+        y:{grid:{color:'#EEF2F0'}, ticks:{callback:(v)=> (v/1000000)+'jt'}}
+      }
+    }
+  });
+
+  const pieCtx = document.getElementById('pieGolongan');
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(pieCtx, {
+    type:'doughnut',
+    data:{
+      labels:['Hotel','Restoran','Pertokoan','Rumah Makan','Perkantoran'],
+      datasets:[{
+        data:[26,22,18,16,18],
+        backgroundColor:['#0B4F3C','#15803D','#D97706','#8FA098','#073024'],
+        borderWidth:2, borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true,
+      cutout:'62%',
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:11}}}}
+    }
+  });
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const pageTitles = {
+  dashboard:'Dashboard Tagihan',
+  'm-jenis':'Data Jenis Tagihan',
+  'm-golongan':'Data Golongan Penerimaan',
+  'm-wajib':'Data Wajib Retribusi',
+  'm-user':'Data User',
+  tagihan:'Data Tagihan',
+  'lap-bulanan':'Laporan Tagihan Bulanan',
+  'lap-harian':'Laporan Rekap Retribusi Harian',
+};
+
+function goPage(page, el){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item[data-page]').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[page] || '';
+  document.getElementById('sidebar').classList.remove('open');
+  if (page === 'dashboard') setTimeout(renderCharts, 20);
+}
+
+function toggleSub(name, el){
+  const sub = document.getElementById('sub-' + name);
+  sub.classList.toggle('open');
+  el.classList.toggle('open');
+}
+
+/* ============================================================
+   LOGIN / LOGOUT
+   ============================================================ */
+let currentRole = 'SUPERADMIN';
+function selectRole(el){
+  document.querySelectorAll('.role-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  currentRole = el.dataset.role;
+  const userField = document.getElementById('loginUser');
+  userField.value = currentRole === 'SUPERADMIN' ? 'admin.dlh' : 'rudi.hartono';
+}
+
+function doLogin(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const isAdmin = currentRole === 'SUPERADMIN';
+  document.getElementById('topRoleBadge').textContent = currentRole;
+  document.getElementById('topRoleBadge').className = 'rolebadge ' + currentRole;
+  document.getElementById('topUserName').textContent = isAdmin ? 'Admin DLH' : 'Rudi Hartono';
+  document.getElementById('topAvatar').textContent = isAdmin ? 'AD' : 'RH';
+
+  initPages();
+  renderCharts();
+}
+
+function doLogout(){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.querySelectorAll('.submenu').forEach(s=>s.classList.remove('open'));
+  document.querySelectorAll('.nav-item.parent').forEach(s=>s.classList.remove('open'));
+  goPage('dashboard', document.querySelector('.nav-item[data-page="dashboard"]'));
+}
+
+/* ============================================================
+   TOAST / MODAL
+   ============================================================ */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2600);
+}
+
+function generateTagihan(){
+  const modal = document.getElementById('genModal');
+  modal.classList.add('show');
+  setTimeout(() => {
+    modal.classList.remove('show');
+    const newPeriod = 'Juli 2025';
+    let n = tagihanData.length + 1;
+    wajibRetribusiData.forEach(w => {
+      tagihanData.unshift({
+        id:'TG-' + String(n++).padStart(4,'0'),
+        periode:newPeriod,
+        wajib:w.nama,
+        kodeWajib:w.kode,
+        golongan:w.golongan,
+        tagihan:w.tarifBulan,
+        denda:0,
+        total:w.tarifBulan,
+        status:'Belum Bayar'
+      });
+    });
+    if (window._refreshTagihanTable) window._refreshTagihanTable();
+    showToast('Tagihan bulanan periode Juli 2025 berhasil dibuat');
+  }, 1300);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+let pagesInitialized = false;
+function initPages(){
+  if (pagesInitialized) return;
+  pagesInitialized = true;
+  renderDashboardRecent();
+  renderJenis();
+  renderGolongan();
+  renderWajib();
+  renderUser();
+  renderTagihanTable();
+  renderLaporanBulanan();
+  renderLaporanHarian();
+}
+</script>
+</body>
+</html>
